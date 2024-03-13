@@ -42,8 +42,6 @@ class Linear_replay_buffer:
         self.current_index = 0
       
 
-
-
     def memorize(self, state, action, next_state, reward):
         '''
         Store one transition of the environment into the buffer
@@ -112,6 +110,10 @@ class Linear_replay_buffer:
 
         return np.append(state_repeated, self.action_grid.reshape(-1,1), axis=1)
     
+
+
+    def get_SINDY_data(self):
+        return self.full_feature_map, self.next_state_buffer[:self.current_index, :]
 
 
 
