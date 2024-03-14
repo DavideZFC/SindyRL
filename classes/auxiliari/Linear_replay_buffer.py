@@ -112,8 +112,11 @@ class Linear_replay_buffer:
     
 
 
-    def get_SINDY_data(self):
+    def get_SINDY_model_data(self):
         return self.full_feature_map, self.next_state_buffer[:self.current_index, :]
+    
+    def get_SINDY_reward_data(self):
+        return self.full_feature_map, self.reward_buffer[:self.current_index]
 
 
 
