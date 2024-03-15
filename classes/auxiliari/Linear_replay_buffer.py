@@ -118,6 +118,13 @@ class Linear_replay_buffer:
     def get_SINDY_reward_data(self):
         return self.full_feature_map, self.reward_buffer[:self.current_index]
 
+    def build_state_action_feature_map(self,state,action):
+        state_action = np.append(state.reshape(1,-1),action.reshape(1,-1),axis=1)
+        feature_maps = []
+        for i in range(self.state_space_dim+self.action_space_dim):
+            feature_maps.append(self.feature_map(state_action[:, i], d=self.approx_degree))
+
+        return merge_feature_maps(feature_maps)
 
 
     def build_next_state_action_feature_map(self, state=0):
