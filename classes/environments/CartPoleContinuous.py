@@ -22,6 +22,7 @@ class ContinuousCartPoleEnv(gym.Env):
         self.tau = 0.02  # seconds between state updates
         self.min_action = -1.0
         self.max_action = 1.0
+        self.H = 200
 
         # Angle at which to fail the episode
         self.theta_threshold_radians = 12 * 2 * math.pi / 360
@@ -66,17 +67,23 @@ class ContinuousCartPoleEnv(gym.Env):
         theta_dot = theta_dot + self.tau * thetaacc
         return (x, x_dot, theta, theta_dot)
 
+    def feasible_action(self, action):
+        return action[0] < 1.01 and action[0] > -1.01
+
     def step(self, action):
-        assert self.action_space.contains(action), \
-            "%r (%s) invalid" % (action, type(action))
+        #assert self.action_space.contains(action), \
+        #    "%r (%s) invalid" % (action, type(action))
         # Cast action to float to strip np trappings
+        assert self.feasible_action(action), \
+            "%r (%s) invalid" % (action, type(action))
         force = self.force_mag * float(action)
         self.state = self.stepPhysics(force)
         x, x_dot, theta, theta_dot = self.state
         done = x < -self.x_threshold \
             or x > self.x_threshold \
             or theta < -self.theta_threshold_radians \
-            or theta > self.theta_threshold_radians
+            or theta > self.theta_threshold_radians \
+            or self.h == self.H
         done = bool(done)
 
         if not done:
@@ -95,11 +102,13 @@ Any further steps are undefined behavior.
             self.steps_beyond_done += 1
             reward = 0.0
 
+        self.h += 1
         return np.array(self.state), reward, done, done, {}
 
     def reset(self):
         self.state = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
         self.steps_beyond_done = None
+        self.h = 0
         return np.array(self.state), None
 
     def render(self, mode='human'):

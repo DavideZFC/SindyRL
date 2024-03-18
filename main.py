@@ -14,34 +14,33 @@ env = ContinuousCartPoleEnv()
 LRB = SINDy(basis='legendre', approx_degree=3, state_space_dim=env.observation_space.shape[0], action_space=env.action_space, numel=numel, discretize=discretize)
 LRB.linear_converter()
 
-transitions = 1000
+transitions = 10000
 state = env.reset()
 t = 0
+h = 5
+N = 20
+lim = 100
 while t<transitions:
     state, _ = env.reset()
     done = False
+    ret = 0
     while not done:
-        action = env.action_space.sample()
+        if t>lim:
+            action = LRB.planner(state,h=5,N=10)[0]
+        else:
+            action = env.action_space.sample()
         new_state, reward, terminated, truncated, _= env.step(action)
         done = terminated or truncated
         LRB.memorize(state,action,new_state,reward)
         state = new_state
         t += 1
 
-LRB.linear_converter()
-LRB.compute_models()
+        ret += reward
+    print('#\n siamo a t={} \n #'.format(t))
+    print('episodic return {}'.format(ret))
+
+    LRB.linear_converter()
+    LRB.compute_models()
+
 state, _ = env.reset()
-print(LRB.planner(state,h=2,N=10))
-'''
-X, y = LRB.get_SINDY_reward_data()
-print('training with {} data'.format(X.shape[0]))
-numel = 6
-eps = 0#10**(-8)
-alpha_routine = [2**(-2*i-5) for i in range(numel)]
-for alpha in alpha_routine:
-    model = Lasso(alpha=alpha)
-    model.fit(X,y)
-    MSE = np.mean((model.predict(X)-y)**2)
-    valid = np.sum(1*(model.coef_**2>eps))
-    print('alpha = {}, MSE = {}, valid = {}, total = {}'.format(alpha, MSE, valid, model.coef_.shape))
-'''
+print(LRB.planner(state,h=5,N=10))

@@ -36,11 +36,13 @@ class SINDy(Linear_replay_buffer):
     def planner(self, state, h, N):
         # generate random action queues
         action_queues = np.zeros((N,h,self.action_space_dim))
+        rew = np.zeros(N)
         for n in range(N):
             for i in range(h):
                 action_queues[n,i,:] = self.action_space.sample()
-        for n in range(N):
-            print(self.eval_action_queue(state, action_queues[n,:,:]))
+                rew[n] = self.eval_action_queue(state, action_queues[n,:,:])
+        imax = np.argmax(rew)
+        return action_queues[imax,:,:]
 
 
 
