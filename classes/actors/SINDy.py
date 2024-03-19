@@ -4,8 +4,10 @@ import numpy as np
 
 class SINDy(Linear_replay_buffer):
 
-    def __init__(self, basis, approx_degree, state_space_dim, action_space, numel, discretize=200):
+    def __init__(self, basis, approx_degree, state_space_dim, action_space, numel, discretize=200, hor=2, trials=20):
         super().__init__(basis, approx_degree, state_space_dim, action_space, numel, discretize)
+        self.hor = hor
+        self.trials = trials
 
     def compute_models(self):
         X, y = self.get_SINDY_model_data()
@@ -43,6 +45,17 @@ class SINDy(Linear_replay_buffer):
                 rew[n] = self.eval_action_queue(state, action_queues[n,:,:])
         imax = np.argmax(rew)
         return action_queues[imax,:,:]
+    
+    def choose_action(self, state):
+        if self.current_index < 100:
+            return self.action_space.sample()
+        return self.planner(state,h=self.hor,N=self.trials)[0]
+    
+    def train(self):
+        self.linear_converter()
+        self.compute_models()
+
+
 
 
 
