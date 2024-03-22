@@ -66,10 +66,13 @@ class Linear_replay_buffer:
         '''
         Converts the state_action buffer into the corresponding feature map representation
         '''
+        #normalize columns to have maximum one
+        
 
         feature_maps = []
         for i in range(self.state_space_dim+self.action_space_dim):
-            feature_maps.append(self.feature_map(self.state_action_buffer[:self.current_index, i], d=self.approx_degree))
+            c = 1#2*np.max(np.abs(self.state_action_buffer[:self.current_index, i]))
+            feature_maps.append(self.feature_map(self.state_action_buffer[:self.current_index, i]/c, d=self.approx_degree))
 
         self.full_feature_map = merge_feature_maps(feature_maps)
         self.full_feature_map /= (self.full_feature_map.shape[1]**0.5)
