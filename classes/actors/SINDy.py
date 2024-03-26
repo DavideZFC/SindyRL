@@ -1,13 +1,15 @@
 from classes.auxiliari.Linear_replay_buffer import Linear_replay_buffer
-from sklearn.linear_model import Lasso
+from sklearn.linear_model import Lasso, Ridge
 import numpy as np
 
 class SINDy(Linear_replay_buffer):
 
-    def __init__(self, basis, approx_degree, state_space_dim, action_space, numel, discretize=200, hor=2, trials=20):
+    def __init__(self, basis, approx_degree, state_space_dim, action_space, numel, discretize=200, hor=2, trials=20, alpha=1e-4, lasso = True):
         super().__init__(basis, approx_degree, state_space_dim, action_space, numel, discretize)
         self.hor = hor
         self.trials = trials
+        self.alpha = alpha
+        self.lasso = lasso
 
     def compute_models(self):
         X, y = self.get_SINDY_model_data()
@@ -16,8 +18,11 @@ class SINDy(Linear_replay_buffer):
         X, y = self.get_SINDY_reward_data()
         self.r_model = self.train_model(X,y)
 
-    def train_model(self, X, y, alpha=1e-4):
-        model = Lasso(alpha=alpha)
+    def train_model(self, X, y):
+        if self.lasso:
+            model = Lasso(alpha=self.alpha)
+        else:
+            model = Ridge(alpha=self.alpha)
         model.fit(X,y)
         MSE = np.mean((model.predict(X)-y)**2)
         valid = np.sum(1*(model.coef_**2>0))
