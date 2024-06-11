@@ -27,6 +27,7 @@ def test_algorithm(agent0, env, seeds, K=30, first_seed=1):
             state = env.reset()[0]
             done = False
             ret = 0
+            print('ep = {}'.format(k))
 
             while not done:
                 # action = env.action_space.sample()

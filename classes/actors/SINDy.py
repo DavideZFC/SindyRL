@@ -10,10 +10,12 @@ class SINDy(Linear_replay_buffer):
         self.trials = trials
         self.alpha = alpha
         self.lasso = lasso
+        self.undertrained = True
 
     def compute_models(self):
         X, y = self.get_SINDY_model_data()
         self.p_model = self.train_model(X,y)
+        self.undertrained = False
 
         X, y = self.get_SINDY_reward_data()
         self.r_model = self.train_model(X,y)
@@ -52,7 +54,7 @@ class SINDy(Linear_replay_buffer):
         return action_queues[imax,:,:]
     
     def choose_action(self, state):
-        if self.current_index < 100:
+        if self.current_index < 50 or self.undertrained:
             return self.action_space.sample()
         return self.planner(state,h=self.hor,N=self.trials)[0]
     

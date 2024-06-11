@@ -31,7 +31,7 @@ def make_experiment(policies, env, seeds, K, labels, exp_name=''):
 
     # in this dictionary, we store the running times of the algorithms
     running_times = {}
-
+    par = {}
     
     for i in range(len(policies)):
 
@@ -48,6 +48,9 @@ def make_experiment(policies, env, seeds, K, labels, exp_name=''):
         # store time
         t1 = time.time()
         running_times[labels[i]] = t1 - t0
+        par[labels[i]+'_trials'] = policies[i].trials
+        par[labels[i]+'_alpha'] = policies[i].alpha
+        par[labels[i]+'_lasso'] = policies[i].lasso
         
         print(labels[i] + ' finished')
 
@@ -73,6 +76,10 @@ def make_experiment(policies, env, seeds, K, labels, exp_name=''):
     with open(dir+"running_times.json", "w") as f:
         # Convert the dictionary to a JSON string and write it to the file
         json.dump(running_times, f)
+
+    with open(dir+"params.json", "w") as f:
+        # Convert the dictionary to a JSON string and write it to the file
+        json.dump(par, f)
     
     plt.legend()
     plt.title('Reward curves')
