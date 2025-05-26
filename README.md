@@ -16,7 +16,7 @@ Included algorithms:
 
 These algorithms are evaluated on simple environments with Gaussian or Bernoulli rewards, and their performance is compared in terms of cumulative regret.
 
-## 🛠️ Project Structure
+## Project Structure
 
 ```
 algos/                  # Bandit algorithms
@@ -49,7 +49,7 @@ python prova.py
 
 Example output includes plots like cumulative regret over time.
 
-## 🔧 Requirements
+## Requirements
 
 - Python 3.8+
 - NumPy
